@@ -93,5 +93,5 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/${{ secrets.EC2_USER }}/app
+            cd ${{ secrets.EC2_USER }}/app
             pm2 start dist/src/main.js --name my-app
