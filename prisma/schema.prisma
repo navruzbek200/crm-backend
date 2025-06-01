@@ -1,0 +1,131 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      UserRole @default(SALES_TEAM)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  interactions Interaction[]
+  deals        Deal[]
+
+  @@map("users")
+}
+
+model Customer {
+  id          String  @id @default(cuid())
+  companyName String
+  contactName String
+  email       String  @unique
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  country     String?
+  website     String?
+  notes       String?
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Communication preferences
+  preferredContactMethod ContactMethod @default(EMAIL)
+  
+  // Relations
+  interactions Interaction[]
+  deals        Deal[]
+
+  @@map("customers")
+}
+
+model Interaction {
+  id          String          @id @default(cuid())
+  type        InteractionType
+  subject     String
+  description String?
+  notes       String?
+  scheduledAt DateTime?
+  completedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("interactions")
+}
+
+model Deal {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  value       Decimal    @db.Decimal(10, 2)
+  status      DealStatus @default(OPEN)
+  priority    Priority   @default(MEDIUM)
+  expectedCloseDate DateTime?
+  actualCloseDate   DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Relations
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("deals")
+}
+
+enum UserRole {
+  ADMIN
+  SALES_TEAM
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+  IN_PERSON
+  VIDEO_CALL
+}
+
+enum InteractionType {
+  MEETING
+  CALL
+  EMAIL
+  MESSAGE
+  FOLLOW_UP
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
