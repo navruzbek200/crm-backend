@@ -18,9 +18,10 @@ async function bootstrap() {
 
   // CORS configuration
   app.enableCors({
-    origin: "*"
-  })
-    
+  origin: "http://localhost:5173",
+  credentials: true,
+});
+
   // API prefix
   app.setGlobalPrefix("api")
 
